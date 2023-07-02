@@ -5,7 +5,7 @@ const db = require('./database/connection');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cors = require('cors')
-const PORT = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 const categoryRoutes = require('./routes/categoryRoute');
 const productRoutes = require('./routes/productRoute');
@@ -28,6 +28,6 @@ app.use('/api',paymentRoutes);
 
 
 
-app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
+app.listen(port, () => {
+  console.log(`Server started on port ${port}`);
 });
