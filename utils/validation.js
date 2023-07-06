@@ -24,6 +24,14 @@ exports.userValidation = [
       .matches(/[A-Z]/).withMessage('Password must contain one uppercase letter').matches(/[0-9]/).withMessage('Password must contain one numeric digit')
       .matches(/[@#$%&*^?.,-_]/).withMessage('Password must contain one special character').isLength({ min: 8 }).withMessage('Password must be minimum of 8 characters').isLength({ max: 100 }).withMessage('Password must not exceed more than 100 characters'),
   ];
+
+  exports.vehicleownerValidation = [
+    check('name', 'Name is required').notEmpty().isLength({ min: 2 }).withMessage('Name should be at least 2 characters'),
+    check('email', 'Email is required').notEmpty().isEmail().withMessage('Invalid email format'),
+    check('password', 'Password is required').notEmpty().matches(/[a-z]/).withMessage('Password must contain one lowercase letter')
+      .matches(/[A-Z]/).withMessage('Password must contain one uppercase letter').matches(/[0-9]/).withMessage('Password must contain one numeric digit')
+      .matches(/[@#$%&*^?.,-_]/).withMessage('Password must contain one special character').isLength({ min: 8 }).withMessage('Password must be minimum of 8 characters').isLength({ max: 100 }).withMessage('Password must not exceed more than 100 characters'),
+  ];
   
   exports.validation = (req, res, next) => {
     const errors = validationResult(req);

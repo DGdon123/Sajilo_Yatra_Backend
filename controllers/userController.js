@@ -8,12 +8,12 @@ const jwt = require('jsonwebtoken');
 // to register user
 exports.userRegister = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, gender, age, phoneNumber, location, dob } = req.body;
 
     // Check if the email is already registered
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ error: 'Email must be unique' });
+      return res.status(400).json({ message: 'Email must be unique' });
     }
 
     // Create a new user
@@ -21,28 +21,17 @@ exports.userRegister = async (req, res) => {
       name,
       email,
       password,
+      gender,
+      age,
+      phoneNumber,
+      location,
+      dob,
     });
 
     // Save the user to the database
     await user.save();
 
-    let token = new Token({
-      token: crypto.randomBytes(16).toString('hex'),
-      userId: user._id,
-    });
-
-    token = await token.save();
-
-    if (!token) {
-      return res.status(400).json({ error: 'Failed to store token' });
-    }
-
-    sendEmail({
-      from: 'no-reply@expresscommerce.com',
-      to: user.email,
-      subject: 'Email Verification Link',
-      text: `Hello, \n\nPlease verify your email by clicking the below link:\n\nhttp:\/\/${req.headers.host}\/api\/confirmation\/${token.token}`,
-    });
+   
 
     // Return the response with user details
     res.status(200).json({
@@ -51,12 +40,18 @@ exports.userRegister = async (req, res) => {
         name: user.name,
         email: user.email,
         password: user.password,
+        gender: user.gender,
+        age: user.age,
+        phoneNumber: user.phoneNumber,
+        location: user.location,
+        dob: user.dob,
       },
     });
   } catch (error) {
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 
 // Confirming the email
 exports.postEmailConfirmation = async (req, res) => {
@@ -95,7 +90,8 @@ exports.postEmailConfirmation = async (req, res) => {
 
 
   //sign in
-exports.signIn = async (req, res) => {
+ //sign in
+ exports.signIn = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -104,19 +100,16 @@ exports.signIn = async (req, res) => {
     if (!user) {
       return res
         .status(400)
-        .json({ error: 'Sorry, the email you provided was not found in our system' });
+        .json({ message: 'Sorry, the email you provided was not found in our system' });
     }
 
     // Check the matching password for that email
     const isPasswordValid = await user.authenticate(password);
     if (!isPasswordValid) {
-      return res.status(400).json({ error: 'Email and password do not match' });
+      return res.status(400).json({ message: 'Email and password do not match' });
     }
 
-    // Check if user is verified or not
-    if (!user.isVerified) {
-      return res.status(400).json({ error: 'Please verify your email before logging in' });
-    }
+   
 
     // Generate token using user id and JWT secret
     const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
@@ -131,7 +124,7 @@ exports.signIn = async (req, res) => {
   } catch (error) {
     // Handle any potential errors
     console.error(error);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ message: 'Internal server error' });
   }
 };
 

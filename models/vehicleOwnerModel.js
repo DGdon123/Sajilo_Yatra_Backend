@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const uuidv1 = require('uuidv1')
 const crypto = require('crypto')
 
-const userSchema = new mongoose.Schema({
+const vehicleownerSchema = new mongoose.Schema({
     name:{
         type:String,
         trim:true,
@@ -33,6 +33,36 @@ const userSchema = new mongoose.Schema({
         trim:true,
         
     },
+    vehicleName:{
+        type:String,
+        required:true,
+        trim:true,
+        
+    },
+    vehicleType:{
+        type:String,
+        required:true,
+        trim:true,
+        
+    },
+   vehicleNumber:{
+        type:String,
+        required:true,
+        trim:true,
+        
+    },
+    vehicleFacility:{
+        type:String,
+        required:true,
+        trim:true,
+        
+    },
+    vehicleSeat:{
+        type:Number,
+        required:true,
+        trim:true,
+        
+    },
     location:{
         type:String,
         required:true,
@@ -40,9 +70,8 @@ const userSchema = new mongoose.Schema({
         
     },
     dob: {
-        type:String,
-        required:true,
-        trim:true,
+        type: Date, // Add the dob field of type Date
+        required: true
       },
     role:{
         type:Number,
@@ -60,7 +89,7 @@ const userSchema = new mongoose.Schema({
 },{timestamps:true})
 
 // virtual fields
-userSchema.virtual('password')
+vehicleownerSchema.virtual('password')
 .set(function(password){
     this._password = password
     this.salt=uuidv1()
@@ -71,7 +100,7 @@ userSchema.virtual('password')
 })
 
 //defining methods
-userSchema.methods={
+vehicleownerSchema.methods={
     encryptPassword:function(password){
         if(!password) return ''
         try{
@@ -89,4 +118,4 @@ userSchema.methods={
     }
 }
 
-module.exports=mongoose.model('User',userSchema)
+module.exports=mongoose.model('VehicleOwner',vehicleownerSchema)

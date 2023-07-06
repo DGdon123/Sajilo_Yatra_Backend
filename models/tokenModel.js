@@ -10,6 +10,11 @@ const tokenSchema = new mongoose.Schema({
         required:true,
         ref:'User'
     },
+    vehicleOwnerId: { // New reference to the vehicle owner
+        type: ObjectId,
+        required: true,
+        ref: 'VehicleOwner',
+      },
     createdAt:{
         type:Date,
         default:Date.now(),

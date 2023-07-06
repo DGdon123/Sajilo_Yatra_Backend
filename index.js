@@ -12,6 +12,7 @@ const productRoutes = require('./routes/productRoute');
 const userRoutes = require('./routes/userRoute');
 const orderRoutes = require('./routes/orderRoute');
 const paymentRoutes = require('./routes/paymentRoute')
+const vehicleRoutes = require('./routes/vehicleOwnerRoute')
 
 // Middleware
 app.use(bodyParser.json());
@@ -25,6 +26,7 @@ app.use('/api', productRoutes);
 app.use('/api', userRoutes);
 app.use('/api', orderRoutes);
 app.use('/api',paymentRoutes);
+app.use('/api',vehicleRoutes)
 
 
 
