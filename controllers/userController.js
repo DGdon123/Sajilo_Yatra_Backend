@@ -3,7 +3,11 @@ const Token = require('../models/tokenModel');
 const crypto = require('crypto');
 const sendEmail = require('../utils/setEmail');
 const jwt = require('jsonwebtoken');
+const API_KEY = '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';
+const sgMail = require('@sendgrid/mail');
+const nodemailer = require("nodemailer");
 
+sgMail.setApiKey(API_KEY);
 
 // to register user
 exports.userRegister = async (req, res) => {
@@ -142,6 +146,7 @@ exports.forgetPassword = async (req, res) => {
     let token = new Token({
       token: crypto.randomBytes(16).toString('hex'),
       userId: user._id,
+      vehicleId: user._id
     });
 
     token = await token.save();
@@ -150,22 +155,59 @@ exports.forgetPassword = async (req, res) => {
       return res.status(400).json({ error: 'Failed to store token' });
     }
 
-    const resetPasswordLink = `http://${req.headers.host}/api/resetpassword/${token.token}`;
-    const emailContent = `Hello,\n\nPlease reset your password by clicking the below link:\n\n${resetPasswordLink}`;
+    const resetPasswordLink = `${token.token}`;
+    const emailContent = `Hello,\n\nPlease copy the token and use it in app:\n\n${resetPasswordLink}`;
 
-    await sendEmail({
-      from: 'no-reply@expresscommerce.com',
+    const transporter = nodemailer.createTransport({service:"gmail",auth:{
+      user:"dipeshgurung797@gmail.com",
+      pass:"aauucqdprnpdhkal"
+    }});
+
+   
+    const message = {
+      from: "dipeshgurung797@gmail.com",
       to: user.email,
       subject: 'Password Reset Link',
       text: emailContent,
+     
+    };
+
+    transporter.sendMail(message, function(error, info){
+      if(error){
+        console.log(error);
+      }
+      else{
+        console.log("Email sent: " + info.response);
+      }
     });
 
+    
     res.status(200).json({ message: 'A password reset link has been sent to your email' });
   } catch (error) {
     console.error('Forgot password error:', error);
     res.status(500).json({ error: 'An error occurred while processing your request' });
   }
 };
+
+//send otp for password reset
+exports.sendOTP = async(email)=>{
+  try{
+    const existingUser = await User.findOne({email});
+    if(!existingUser){
+      throw Error("Ther's no account for the provided email.")
+    }
+    
+    const otpDetails ={
+      email,
+      subject:"Password Reset",
+      message:"Enter the code below to reset your password",duration:1
+    }
+    const createdOTP = await this.sendOTP(otpDetails);
+    return createdOTP;
+  }catch(error){
+    throw error;
+  }
+}
 
 //reset password
 exports.resetPassword = async (req, res) => {
@@ -176,13 +218,14 @@ exports.resetPassword = async (req, res) => {
       return res.status(400).json({ error: 'Invalid token or token may have expired' });
     }
 
-    const user = await User.findOne({ _id: token.userId });
+    const user = await User.findOne({ _id: token.userId })   ;
 
     if (!user) {
       return res.status(400).json({ error: 'Sorry, this user is not associated with this token' });
     }
 
     user.password = req.body.password;
+    
     await user.save();
 
     // Delete the token from the database after password reset

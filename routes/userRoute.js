@@ -1,5 +1,5 @@
 const express = require('express')
-const { userRegister, postEmailConfirmation, signIn, forgetPassword, resetPassword, signout, userList, userInfo, requireSignIn } = require('../controllers/userController')
+const { userRegister, postEmailConfirmation, signIn, forgetPassword, resetPassword, signout, userList, userInfo, requireSignIn, sendOTP } = require('../controllers/userController')
 const { userValidation, validation } = require('../utils/validation')
 const router = express.Router()
 
@@ -10,6 +10,17 @@ router.post('/forgetpassword',forgetPassword)
 router.put('/resetpassword/:token',resetPassword)
 router.post('/signout',signout)
 router.get('/userlist',requireSignIn, userList)
-router.get('/userinfo/:id',requireSignIn, userInfo)
+router.get('/userinfo/:id', userInfo)
+router.post("/forgotpassword", async (req,res) =>{
+    try{
+        const {email} = req.body;
+        if(!email) throw Error("An email is required.")
+        const createdPasswordResetOTP = await sendOTP(email);
+        res.status(200).json(createdPasswordResetOTP);
+    }
+    catch(error){
+        res.status(400).send(error.message);
+    }
+});
 
 module.exports=router

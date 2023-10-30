@@ -51,12 +51,7 @@ const vehicleownerSchema = new mongoose.Schema({
         trim:true,
         
     },
-    vehicleFacility:{
-        type:String,
-        required:true,
-        trim:true,
-        
-    },
+   
     vehicleSeat:{
         type:Number,
         required:true,

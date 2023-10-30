@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const cors = require('cors')
 const port = process.env.PORT || 5000;
 
+
 const categoryRoutes = require('./routes/categoryRoute');
 const productRoutes = require('./routes/productRoute');
 const userRoutes = require('./routes/userRoute');
