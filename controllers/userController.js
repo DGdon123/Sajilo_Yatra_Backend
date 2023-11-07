@@ -11,8 +11,18 @@ sgMail.setApiKey(API_KEY);
 
 // to register user
 exports.userRegister = async (req, res) => {
-  try {
-    const { name, email, password, gender, age, phoneNumber, location, dob } = req.body;
+  try {const user = new User({
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+    gender: req.body.gender,
+    image: req.file.path,
+    age: req.body.age,
+    phoneNumber: req.body.phoneNumber,
+    location: req.body.location,
+    dob: req.body.dob,
+  });
+   
 
     // Check if the email is already registered
     const existingUser = await User.findOne({ email });
@@ -20,18 +30,7 @@ exports.userRegister = async (req, res) => {
       return res.status(400).json({ message: 'Email must be unique' });
     }
 
-    // Create a new user
-    const user = new User({
-      name,
-      email,
-      password,
-      gender,
-      age,
-      phoneNumber,
-      location,
-      dob,
-    });
-
+   
     // Save the user to the database
     await user.save();
 
@@ -46,6 +45,7 @@ exports.userRegister = async (req, res) => {
         password: user.password,
         gender: user.gender,
         age: user.age,
+        image: user.image,
         phoneNumber: user.phoneNumber,
         location: user.location,
         dob: user.dob,
@@ -53,6 +53,64 @@ exports.userRegister = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+//reset password
+exports.editProfile = async (req, res) => {
+  try {
+  const user = await User.findById(req.params.id).select('-hashed_password').select('-salt')
+  if(!user){
+    return res.status(400).json({error:'something went wrong'})
+  }
+     // Check if the email is already registered
+    
+    user.name = req.body.name;
+    user.email = req.body.email;
+    user.phoneNumber = req.body.phoneNumber;
+    user.location = req.body.location;
+    user.dob =req.body.dob;
+    const existingUser = await User.findOne({ name: user.name });
+if (existingUser) {
+  return res.status(400).json({ message: 'Name must be new' });
+}
+// Check if a user with the same phone number already exists
+const existingUserByEmail = await User.findOne({ email: user.email });
+if (existingUserByEmail) {
+  return res.status(400).json({ message: 'Email must be new' });
+}
+// Check if a user with the same phone number already exists
+const existingUserByPhoneNumber = await User.findOne({ phoneNumber: user.phoneNumber });
+if (existingUserByPhoneNumber) {
+  return res.status(400).json({ message: 'Phone number must be new' });
+}
+
+const existingUserByLocation = await User.findOne({ location: user.location });
+if (existingUserByLocation) {
+  return res.status(400).json({ message: 'Location must be new' });
+}
+
+const existingUserByDOB = await User.findOne({ dob: user.dob });
+if (existingUserByDOB) {
+  return res.status(400).json({ message: 'Date of Birth must be new' });
+}
+    await user.save();
+
+    res.status(200).json({
+      message: 'Profile has been updated successfully',
+      user: {
+        name: user.name,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        location: user.location,
+        dob: user.dob,
+      },
+    });
+
+    
+  } catch (error) {
+    console.error('Profile update error:', error);
+    res.status(500).json({ error: 'An error occurred while processing your request' });
   }
 };
 
