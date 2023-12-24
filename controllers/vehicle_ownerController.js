@@ -220,3 +220,9 @@ exports.vresetPassword = async (req, res) => {
     res.status(500).json({ error: 'An error occurred while processing your request' });
   }
 };
+
+//signout
+exports.vsignout = async (req,res) =>{
+  res.clearCookie('testCookie')
+  res.json({message:'signout success'})
+}
